@@ -3,4 +3,5 @@ avg_requests,157.35
 avg_errors,4.433333333333334
 avg_error_rate,0.026486148644015068
 avg_latency_ms,33.711553842122015
-system_state,DEGRADED
+anomaly_count,7
+system_state,STABLE

@@ -1,7 +1,7 @@
 # cintel-06-continuous-intelligence
 
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://denisecase.github.io/cintel-06-continuous-intelligence/)
-[![CI Status](https://github.com/denisecase/cintel-06-continuous-intelligence/actions/workflows/ci-python-zensical.yml/badge.svg?branch=main)](https://github.com/denisecase/cintel-06-continuous-intelligence/actions/workflows/ci-python-zensical.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://bjdawson23.github.io/cintel-06-continuous-intelligence/)
+[![CI Status](https://github.com/bjdawson23/cintel-06-continuous-intelligence/actions/workflows/ci-python-zensical.yml/badge.svg?branch=main)](https://github.com/bjdawson23/cintel-06-continuous-intelligence/actions/workflows/ci-python-zensical.yml)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue?logo=python)](#)
 [![MIT](https://img.shields.io/badge/license-see%20LICENSE-yellow.svg)](./LICENSE)
 
@@ -50,12 +50,12 @@ in earlier modules into a simple continuous intelligence pipeline:
 
 The example pipeline reads system metrics from:
 
-`data/system_metrics_case.csv`
+`data/system_metrics_dawson.csv`
 
 Each row represents one observation of system activity.
 
 The pipeline derives signals such as
-**error rate** and **average latency**,
+**error rate**, **average latency**, and **request jump percent**,
 checks for anomalous conditions,
 and produces a summary assessment of system behavior.
 
@@ -92,14 +92,16 @@ Working through issues is part of implementing professional projects.
 
 ## Success
 
-After completing Phase 1. **Start & Run**, you'll have your own GitHub project, running on your machine, and running the example will print out:
+After completing Phase 1. **Start & Run**, you'll have your own GitHub project running on your machine. Running the example prints:
 
-## Phase 4
+## Phase 5
 
 **Changes made**
 
-- I changed the output file to be written in long format to make it easier to read.  I also change the Latency threshold from 40.0 to 30.0 to see if it would fail properly.
-- Different formats can make a big difference to look at and review the data or outputs.  Also, setting thresholds needs to be done thoughtfully so that you dont trigger something that may not have needed to be triggered.  
+- I changed the system assessment artifact to long format for easier review.
+- I added request jump anomaly logic with threshold tuning (`MAX_REQUEST_JUMP_PCT = 0.12`).
+- I added a network stability chart artifact that plots error rate and average latency over observations.
+![Network Stability](artifacts/network_stability_dawson.png)
 
 ```shell
 ========================
@@ -108,6 +110,11 @@ Pipeline executed successfully!
 ```
 
 And a new file named `project.log` will appear in the project folder.
+
+Additional artifacts from the current pipeline run:
+
+- `artifacts/system_assessment_dawson.csv` (long-format output)
+- `artifacts/network_stability_dawson.png` (line chart)
 
 ## Command Reference
 
@@ -146,7 +153,7 @@ uvx pre-commit run --all-files
 git add -A
 uvx pre-commit run --all-files
 
-uv run python -m cintel.continuous_intelligence_case
+uv run python -m cintel.continuous_intelligence_dawson
 
 uv run ruff format .
 uv run ruff check . --fix

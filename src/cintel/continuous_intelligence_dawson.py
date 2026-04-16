@@ -52,6 +52,7 @@ import logging
 from pathlib import Path
 from typing import Final
 
+import matplotlib.pyplot as plt
 import polars as pl
 from datafun_toolkit.logger import get_logger, log_header, log_path
 
@@ -67,6 +68,7 @@ ARTIFACTS_DIR: Final[Path] = ROOT_DIR / "artifacts"
 
 DATA_FILE: Final[Path] = DATA_DIR / "system_metrics_dawson.csv"
 OUTPUT_FILE: Final[Path] = ARTIFACTS_DIR / "system_assessment_dawson.csv"
+CHART_FILE: Final[Path] = ARTIFACTS_DIR / "network_stability_dawson.png"
 
 # === DEFINE THRESHOLDS ===
 
@@ -74,7 +76,8 @@ OUTPUT_FILE: Final[Path] = ARTIFACTS_DIR / "system_assessment_dawson.csv"
 # choose thresholds that make sense for their specific use case.
 
 MAX_ERROR_RATE: Final[float] = 0.05
-MAX_AVG_LATENCY: Final[float] = 30.0
+MAX_AVG_LATENCY: Final[float] = 40.0
+MAX_REQUEST_JUMP_PCT: Final[float] = 0.12
 
 # === DEFINE THE MAIN FUNCTION ===
 
@@ -94,6 +97,7 @@ def main() -> None:
     log_path(LOG, "ROOT_DIR", ROOT_DIR)
     log_path(LOG, "DATA_FILE", DATA_FILE)
     log_path(LOG, "OUTPUT_FILE", OUTPUT_FILE)
+    log_path(LOG, "CHART_FILE", CHART_FILE)
 
     # Ensure artifacts directory exists
     ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -118,6 +122,13 @@ def main() -> None:
         [
             (pl.col("errors") / pl.col("requests")).alias("error_rate"),
             (pl.col("total_latency_ms") / pl.col("requests")).alias("avg_latency_ms"),
+            pl.when(pl.col("requests").shift(1).is_null())
+            .then(pl.lit(0.0))
+            .otherwise(
+                ((pl.col("requests") - pl.col("requests").shift(1)).abs())
+                / pl.col("requests").shift(1)
+            )
+            .alias("request_jump_pct"),
         ]
     )
 
@@ -132,10 +143,12 @@ def main() -> None:
     anomalies_df = df.filter(
         (pl.col("error_rate") > MAX_ERROR_RATE)
         | (pl.col("avg_latency_ms") > MAX_AVG_LATENCY)
+        | (pl.col("request_jump_pct") > MAX_REQUEST_JUMP_PCT)
     )
     LOG.info(
         f"STEP 3. Using thresholds: MAX_ERROR_RATE={MAX_ERROR_RATE}, "
-        f"MAX_AVG_LATENCY={MAX_AVG_LATENCY}"
+        f"MAX_AVG_LATENCY={MAX_AVG_LATENCY}, "
+        f"MAX_REQUEST_JUMP_PCT={MAX_REQUEST_JUMP_PCT}"
     )
 
     LOG.info(f"STEP 3. Anomalies detected: {anomalies_df.height}")
@@ -163,6 +176,7 @@ def main() -> None:
             pl.col("errors").mean().alias("avg_errors"),
             pl.col("error_rate").mean().alias("avg_error_rate"),
             pl.col("avg_latency_ms").mean().alias("avg_latency_ms"),
+            pl.lit(anomalies_df.height).alias("anomaly_count"),
         ]
     )
 
@@ -187,11 +201,42 @@ def main() -> None:
     )
 
     # ----------------------------------------------------
-    # STEP 5: SAVE SYSTEM ASSESSMENT
+    # STEP 5: CREATE NETWORK STABILITY CHART
+    # ----------------------------------------------------
+    chart_df = df.with_row_index(name="observation")
+
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+    ax1.plot(
+        chart_df["observation"],
+        chart_df["error_rate"],
+        color="red",
+        label="Error Rate",
+    )
+    ax1.set_xlabel("Observation")
+    ax1.set_ylabel("Error Rate", color="red")
+
+    ax2 = ax1.twinx()
+    ax2.plot(
+        chart_df["observation"],
+        chart_df["avg_latency_ms"],
+        color="blue",
+        label="Avg Latency (ms)",
+    )
+    ax2.set_ylabel("Avg Latency (ms)", color="blue")
+
+    plt.title("Network Stability Over Time")
+    fig.tight_layout()
+    fig.savefig(CHART_FILE, dpi=150)
+    plt.close(fig)
+
+    LOG.info(f"STEP 5. Wrote network stability chart: {CHART_FILE}")
+
+    # ----------------------------------------------------
+    # STEP 6: SAVE SYSTEM ASSESSMENT
     # ----------------------------------------------------
     long_summary_df.write_csv(OUTPUT_FILE)
 
-    LOG.info(f"STEP 5. Wrote system assessment file: {OUTPUT_FILE}")
+    LOG.info(f"STEP 6. Wrote system assessment file: {OUTPUT_FILE}")
 
     LOG.info("========================")
     LOG.info("Pipeline executed successfully!")
