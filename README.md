@@ -94,6 +94,13 @@ Working through issues is part of implementing professional projects.
 
 After completing Phase 1. **Start & Run**, you'll have your own GitHub project, running on your machine, and running the example will print out:
 
+## Phase 4
+
+**Changes made**
+
+- I changed the output file to be written in long format to make it easier to read.  I also change the Latency threshold from 40.0 to 30.0 to see if it would fail properly.
+- Different formats can make a big difference to look at and review the data or outputs.  Also, setting thresholds needs to be done thoughtfully so that you dont trigger something that may not have needed to be triggered.  
+
 ```shell
 ========================
 Pipeline executed successfully!
