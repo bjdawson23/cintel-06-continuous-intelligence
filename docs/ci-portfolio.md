@@ -215,3 +215,5 @@ Originally set the threshold to: MAX_REQUEST_JUMP_PCT: Final[float] = 0.08. This
 ### Assessment
 
 The threshold tuning can make the new request-jump anomaly rule less sensitive by having it set in the .08-.12 range for this test. I also added a line chart to view error rate and latency per network request. The chart shows peak errors occuring at observation 30.
+
+![Network_Stabily_over_time](network_stability_dawson.png)
