@@ -112,6 +112,8 @@ I chose these signals to help:
 
 - The evidence produced custumer wait times by day and ride and that helped label buckets for wait time.
 
+![TOP_15_RIDES_AVE_WAIT](top_rides_avg_wait.png)
+
 ### Insights
 
 Together, the signals can help support better staffing, communication, and crowd-flow decisions across the park.
