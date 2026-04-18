@@ -10,6 +10,9 @@ This page summarizes my work on **continuous intelligence** projects.
 
 ### Repository Link
 
+[Continuous_Intelligence_Portfolio:](https://github.com/bjdawson23/cintel-06-continuous-intelligence/blob/main/docs/ci-portfolio.md)
+
+### Getting Started link
 
 [Getting_started_Project:](https://github.com/bjdawson23/cintel-01-getting-started)
 
