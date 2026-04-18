@@ -62,6 +62,7 @@ features = [
 nav = [
     { "Home" = "index.md" },
     { "Project Instructions" = "project-instructions.md" },
+    { "CI Portfolio" = "ci-portfolio.md" },
     { "Glossary" = "glossary.md" },
     {"Optional: Docker Deployment" = "docker-cloud.md" },
 ]
